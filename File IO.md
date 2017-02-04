@@ -87,3 +87,15 @@ ssize_t write(int fd,const void *buf,size_t nbytes);
 - **The return value is usually equal to the _nbytes_ argument.Otherwise,an error has occurred.**
 - **If the O_APPEND option was specified when the file is opened,the file's offset is set to the current end of file before each write operation.After a successfull write,the file's offset is incremented by the number of bytes actually writen.**
 
+## File Share
+- **The kernel uses three data structures to represent an open file:**
+	1. Every process has an entry in the process table.Within each process table entry is a table of open file descriptors,with one entry per descriptor.Associated with each file descriptor are:
+		- The file descriptor flags(close-on-exec);
+		- A pointer to a file table entry;
+	2. The kernel maintains a file table for all ope files.Each file table entry contains:
+		- The file status flags for the file,such as read,write,append,sync,and nonblocking;
+		- The current file offset;
+		- A pointer to the v-node table entry for the file;
+	3. Each open file(or device) has a v-node structure that contains information about the type of file and pointers to functions that operate on the file.For most files,the v-node also contains the i-node for the file.This information is read from disk when the file is opened,so that all the pertinent information about the file is readily available(For example,the i-node contains the ownner,size,pointers to where the actual data blocks are located on disk and so on).
+- **If two independent process have the same file open,each process gets its own file table entry(each process has its own current offset for the file),but only a single v-node table entry is required for a given file.**
+- **After each write() is complete,**
